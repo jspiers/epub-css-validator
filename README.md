@@ -2,16 +2,6 @@
 
 A command-line tool to validate CSS in EPUB files using Calibre's stylelint rules. This tool helps ensure your EPUB CSS follows the same standards as Calibre's Edit Book tool.
 
-## License
-
-This program is licensed under the **GNU General Public License v3 (GPLv3)**.
-
-This program uses CSS validation rules from [Calibre](https://calibre-ebook.com/), which is also licensed under the GNU General Public License v3.
-
-**Calibre Copyright (C) 2023 Kovid Goyal <kovid at kovidgoyal.net>**
-
-See the [LICENSE](LICENSE) file for the full text of the GNU General Public License.
-
 ## Features
 
 - ✅ Uses Calibre's official stylelint configuration
@@ -21,36 +11,51 @@ See the [LICENSE](LICENSE) file for the full text of the GNU General Public Lice
 - ✅ Custom configuration support
 - ✅ Easy integration with CI/CD pipelines
 
-## Installation
+## Quick Start
 
-### Prerequisites
+Get started in 3 simple steps:
 
-- Node.js 18.0.0 or higher
-
-### Install Dependencies
+### 1. Install Dependencies
 
 ```bash
 cd epub-css-validator
 npm install
 ```
 
-### Make Executable (Linux/macOS)
+### 2. Update Calibre's Rules
 
 ```bash
-chmod +x bin/epub-css-validator.js
+node bin/epub-css-validator.js --update-config
 ```
 
-### Install Globally (Optional)
+This fetches the latest CSS validation rules from Calibre's GitHub repository.
+
+### 3. Validate Your Files
 
 ```bash
-npm link
+# Validate a CSS file
+node bin/epub-css-validator.js examples/test.css
+
+# Validate an EPUB file
+node bin/epub-css-validator.js book.epub
 ```
 
-Now you can run `epub-css-validator` from anywhere.
+### Example Output
+
+```
+Validating CSS: examples/test.css
+
+examples/test.css
+  10:1  ✖  Unexpected empty block                        block-no-empty
+  15:5  ✖  Unexpected unknown property "adobe-hyphenate"  property-no-unknown
+  21:1  ✖  Unexpected unknown type selector "toc1"        selector-type-no-unknown
+
+✗ 3 error(s)
+```
 
 ## Usage
 
-### Basic Usage
+### Basic Commands
 
 ```bash
 # Validate a CSS file
@@ -71,8 +76,6 @@ node bin/epub-css-validator.js file1.css file2.css book.epub
 ```
 Usage: epub-css-validator [options] [files...]
 
-Validate CSS in EPUB files using Calibre's stylelint rules
-
 Arguments:
   files                    CSS files, directories, or EPUB files to validate
 
@@ -86,15 +89,7 @@ Options:
   -V, --version            Display version number
 ```
 
-### Examples
-
-#### Update Calibre's Rules
-
-```bash
-node bin/epub-css-validator.js --update-config
-```
-
-This fetches the latest stylelint configuration from Calibre's GitHub repository and caches it locally.
+### Advanced Examples
 
 #### Check Cached Config Info
 
@@ -103,6 +98,7 @@ node bin/epub-css-validator.js --cache-info
 ```
 
 Output:
+
 ```
 Cached Calibre Config:
   Version: f5255d5
@@ -128,13 +124,7 @@ node bin/epub-css-validator.js --format junit book.epub
 node bin/epub-css-validator.js --config ./my-stylelint.js stylesheet.css
 ```
 
-#### Verbose Mode
-
-```bash
-node bin/epub-css-validator.js --verbose book.epub
-```
-
-## Output
+## Output Formats
 
 ### Text Format (Default)
 
@@ -189,11 +179,8 @@ For the complete list, see Calibre's [stylelint.js](https://github.com/kovidgoya
 ## How It Works
 
 1. **Config Fetching**: The tool fetches Calibre's `stylelint.js` configuration from GitHub and caches it locally.
-
 2. **Rule Extraction**: It extracts the rules from Calibre's JavaScript configuration format.
-
 3. **Validation**: It uses stylelint to validate CSS files against these rules.
-
 4. **EPUB Support**: For EPUB files, it extracts CSS files, validates them, and reports results.
 
 ## Updating Rules
@@ -205,6 +192,7 @@ node bin/epub-css-validator.js --update-config
 ```
 
 The tool will:
+
 - Fetch the latest config from Calibre's GitHub repository
 - Cache it locally in `.cache/calibre-stylelint.js`
 - Store version information in `.cache/cache-info.json`
@@ -225,7 +213,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: "18"
       - name: Install dependencies
         run: |
           cd epub-css-validator
@@ -253,6 +241,14 @@ validate-css:
 
 ## Troubleshooting
 
+### "command not found: node"
+
+Install Node.js from <https://nodejs.org/> (version 18.0.0 or higher required).
+
+### "Cannot find module"
+
+Make sure you ran `npm install` in the epub-css-validator directory.
+
 ### "No cached config found"
 
 Run `--update-config` to fetch Calibre's configuration:
@@ -279,9 +275,9 @@ node bin/epub-css-validator.js --config ./my-stylelint.js stylesheet.css
 
 If you can't fetch Calibre's config from GitHub, you can manually download it:
 
-1. Download `stylelint.js` from https://github.com/kovidgoyal/calibre/blob/master/resources/stylelint.js
+1. Download `stylelint.js` from <https://github.com/kovidgoyal/calibre/blob/master/resources/stylelint.js>
 2. Save it to `.cache/calibre-stylelint.js`
-3. Create `.cache/cache-info.json` with version info
+3. Create `.cache/cache-info.json` with: `{"version":"manual","cachedAt":"2024-01-01T00:00:00.000Z","path":".cache/calibre-stylelint.js"}`
 
 ## Development
 
@@ -294,10 +290,15 @@ epub-css-validator/
 ├── lib/
 │   └── validator.js             # Main validation logic
 ├── config/
-│   └── stylelintrc.js           # Local config (optional)
+│   └── stylelintrc.js           # Example custom config
+├── examples/
+│   └── test.css                 # Test file with errors
 ├── .cache/                      # Cached Calibre config (auto-created)
 ├── package.json
-└── README.md
+├── LICENSE
+├── README.md
+├── CLAUDE.md
+└── AGENTS.md
 ```
 
 ### Running Tests
@@ -312,10 +313,6 @@ npm test
 npm update
 ```
 
-## License
-
-MIT
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
@@ -323,7 +320,14 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 ## Acknowledgments
 
 - [Calibre](https://calibre-ebook.com/) - For the excellent CSS validation rules
-  - Calibre is developed by Kovid Goyal and contributors
-  - Calibre is licensed under the GNU General Public License v3
-  - This tool fetches and uses Calibre's stylelint configuration from https://github.com/kovidgoyal/calibre
+  - Calibre is developed by Kovid Goyal and contributors and licensed under the GNU General Public License v3
+  - This tool fetches and uses Calibre's stylelint configuration from <https://github.com/kovidgoyal/calibre>
 - [stylelint](https://stylelint.io/) - The CSS linter that powers this tool
+
+## License
+
+This program is licensed under the **GNU General Public License v3 (GPLv3)**.
+
+This program uses CSS validation rules from [Calibre](https://calibre-ebook.com/), which is also licensed under the GNU General Public License v3.
+
+See the [LICENSE](LICENSE) file for the full text of the GNU General Public License.
