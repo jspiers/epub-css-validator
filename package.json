@@ -2,6 +2,7 @@
   "name": "epub-css-validator",
   "version": "1.0.0",
   "description": "Command-line tool to validate CSS in EPUB files using Calibre's stylelint rules",
+  "type": "module",
   "main": "lib/validator.js",
   "bin": {
     "epub-css-validator": "./bin/epub-css-validator.js"
@@ -22,11 +23,11 @@
   "license": "GPL-3.0-or-later",
   "dependencies": {
     "axios": "^1.6.0",
-    "chalk": "^4.1.2",
+    "chalk": "^5.3.0",
     "commander": "^11.0.0",
-    "glob": "^10.3.0",
+    "glob": "^10.4.0",
     "jszip": "^3.10.0",
-    "stylelint": "^15.11.0"
+    "stylelint": "^16.0.0"
   },
   "engines": {
     "node": ">=18.0.0"

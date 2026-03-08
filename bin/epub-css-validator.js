@@ -15,10 +15,10 @@
  * See LICENSE file for the full text of the GNU General Public License.
  */
 
-const { Command } = require('commander');
-const chalk = require('chalk');
-const path = require('path');
-const { validateCSS, validateEPUB, updateConfig, getCachedConfigInfo } = require('../lib/validator');
+import { Command } from 'commander';
+import chalk from 'chalk';
+import path from 'path';
+import { validateCSS, validateEPUB, updateConfig, getCachedConfigInfo } from '../lib/validator.js';
 
 const program = new Command();
 
