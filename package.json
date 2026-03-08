@@ -8,8 +8,8 @@
     "epub-css-validator": "./bin/epub-css-validator.js"
   },
   "scripts": {
-    "test": "vitest",
-    "test:run": "vitest run",
+    "test": "vitest --no-coverage",
+    "test:run": "vitest run --no-coverage",
     "test:coverage": "vitest run --coverage",
     "update-config": "node bin/epub-css-validator.js --update-config"
   },
