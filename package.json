@@ -8,7 +8,9 @@
     "epub-css-validator": "./bin/epub-css-validator.js"
   },
   "scripts": {
-    "test": "node bin/epub-css-validator.js --help",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "test:coverage": "vitest run --coverage",
     "update-config": "node bin/epub-css-validator.js --update-config"
   },
   "keywords": [
@@ -31,5 +33,22 @@
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "vitest": {
+    "testTimeout": 10000,
+    "coverage": {
+      "provider": "v8",
+      "reporter": ["text", "json", "html"],
+      "exclude": [
+        "node_modules/",
+        "tests/",
+        "*.test.js",
+        "*.config.js"
+      ]
+    }
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^4.0.18",
+    "vitest": "^4.0.18"
   }
 }
