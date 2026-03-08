@@ -211,6 +211,4 @@ Contributions welcome! Please feel free to submit a Pull Request.
 
 **GNU General Public License version 3 (GPLv3)**
 
-This program uses CSS validation rules from [Calibre](https://calibre-ebook.com/), also licensed under GPLv3.
-
 See [LICENSE](LICENSE) for the full text.
