@@ -1,0 +1,27 @@
+/* Example CSS file with errors for testing */
+
+body {
+    margin: 0;
+    padding: 0;
+}
+
+/* Empty block - should trigger block-no-empty */
+.empty-block {
+}
+
+/* Unknown property - should trigger property-no-unknown */
+h1 {
+    adobe-hyphenate: none;
+    font-size: 2em;
+}
+
+/* Unknown type selector - should trigger selector-type-no-unknown */
+toc1 {
+    font-size: 1.2em;
+}
+
+/* Valid CSS */
+p {
+    line-height: 1.5;
+    color: #333;
+}
