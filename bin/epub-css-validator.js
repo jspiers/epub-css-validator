@@ -18,7 +18,13 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import path from 'path';
-import { validateCSS, validateEPUB, updateConfig, getCachedConfigInfo } from '../lib/validator.js';
+import {
+  validateCSS,
+  validateEPUB,
+  updateConfig,
+  getCachedConfigInfo,
+  formatJUnit
+} from '../lib/core.js';
 
 const program = new Command();
 
@@ -39,14 +45,14 @@ program
       // Handle --update-config flag
       if (options.updateConfig) {
         console.log(chalk.blue('Updating Calibre stylelint config...'));
-        await updateConfig();
+        await coreUpdateConfig();
         console.log(chalk.green('✓ Config updated successfully'));
         return;
       }
 
       // Handle --cache-info flag
       if (options.cacheInfo) {
-        const info = await getCachedConfigInfo();
+        const info = await coreGetCachedConfigInfo();
         if (info) {
           console.log(chalk.blue('Cached Calibre Config:'));
           console.log(`  Version: ${chalk.yellow(info.version)}`);
@@ -77,11 +83,19 @@ program
           const result = await validateEPUB(filePath, options);
           totalErrors += result.totalErrors;
           totalWarnings += result.totalWarnings;
+          // Display EPUB errors if any
+          if (result.totalErrors > 0 || result.totalWarnings > 0) {
+            displayErrors(result.results[0], filePath);
+          }
         } else if (ext === '.css') {
           console.log(chalk.blue(`Validating CSS: ${file}`));
           const result = await validateCSS(filePath, options);
           totalErrors += result.totalErrors;
           totalWarnings += result.totalWarnings;
+          // Display CSS errors if any
+          if (result.totalErrors > 0 || result.totalWarnings > 0) {
+            displayErrors(result.results[0], filePath);
+          }
         } else {
           console.log(chalk.yellow(`Skipping ${file} (not a CSS or EPUB file)`));
         }
@@ -111,5 +125,24 @@ program
       process.exit(1);
     }
   });
+
+/**
+ * Display validation errors to console
+ */
+function displayErrors(result, filePath) {
+  if (!result || !result.warnings || result.warnings.length === 0) {
+    return;
+  }
+
+  console.log(result.source || filePath);
+  result.warnings.forEach(warning => {
+    // Filter out "Unknown rule" warnings (deprecated rules in Calibre's config)
+    if (warning.text.includes('Unknown rule')) {
+      return;
+    }
+    const severity = warning.severity === 'error' ? '✖' : '⚠';
+    console.log(`  ${warning.line}:${warning.column}  ${severity}  ${warning.text}  ${warning.rule}`);
+  });
+}
 
 program.parse();

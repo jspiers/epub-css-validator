@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { validateCSS } from '../../lib/validator.js';
+import { validateCSS } from '../../lib/core.js';
 import fs from 'fs/promises';
 import path from 'path';
 import { fileURLToPath } from 'url';
