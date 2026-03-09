@@ -270,6 +270,7 @@ export async function validateEPUB(epubPath: string, options: ValidationOptions 
 
   let totalErrors = 0;
   let totalWarnings = 0;
+  const allResults: stylelint.LintResult[] = [];
 
   if (cssFiles.length === 0) {
     return { totalErrors: 0, totalWarnings: 0 };
@@ -277,6 +278,7 @@ export async function validateEPUB(epubPath: string, options: ValidationOptions 
 
   for (const file of cssFiles) {
     const content = await file.async('string');
+    const cssPath = file.name; // Original CSS path in EPUB
 
     // Write to temp file for stylelint
     const tempFile = path.join(CACHE_DIR, `temp-${Date.now()}.css`);
@@ -286,13 +288,20 @@ export async function validateEPUB(epubPath: string, options: ValidationOptions 
       const result = await validateCSS(tempFile, options);
       totalErrors += result.totalErrors;
       totalWarnings += result.totalWarnings;
+      if (result.results) {
+        // Update the source to show the original CSS path from EPUB
+        result.results.forEach(r => {
+          r.source = `${epubPath} (${cssPath})`;
+        });
+        allResults.push(...result.results);
+      }
     } finally {
       // Clean up temp file
       await fs.unlink(tempFile).catch(() => {});
     }
   }
 
-  return { totalErrors, totalWarnings };
+  return { totalErrors, totalWarnings, results: allResults };
 }
 
 /**

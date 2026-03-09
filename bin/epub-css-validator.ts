@@ -87,7 +87,7 @@ program
           totalWarnings += result.totalWarnings;
           // Display EPUB errors if any
           if (result.totalErrors > 0 || result.totalWarnings > 0) {
-            displayErrors(result.results?.[0], filePath);
+            displayErrors(result.results, filePath);
           }
         } else if (ext === '.css') {
           console.log(chalk.blue(`Validating CSS: ${file}`));
@@ -96,7 +96,7 @@ program
           totalWarnings += result.totalWarnings;
           // Display CSS errors if any
           if (result.totalErrors > 0 || result.totalWarnings > 0) {
-            displayErrors(result.results?.[0], filePath);
+            displayErrors(result.results, filePath);
           }
         } else {
           console.log(chalk.yellow(`Skipping ${file} (not a CSS or EPUB file)`));
@@ -131,20 +131,26 @@ program
 /**
  * Display validation errors to console
  */
-function displayErrors(result: stylelint.LintResult | undefined, filePath: string): void {
-  if (!result || !result.warnings || result.warnings.length === 0) {
+function displayErrors(results: stylelint.LintResult[] | undefined, filePath: string): void {
+  if (!results || results.length === 0) {
     return;
   }
 
-  console.log(result.source || filePath);
-  result.warnings.forEach((warning: stylelint.Warning) => {
-    // Filter out "Unknown rule" warnings (deprecated rules in Calibre's config)
-    if (warning.text.includes('Unknown rule')) {
-      return;
+  for (const result of results) {
+    if (!result.warnings || result.warnings.length === 0) {
+      continue;
     }
-    const severity = warning.severity === 'error' ? '✖' : '⚠';
-    console.log(`  ${warning.line}:${warning.column}  ${severity}  ${warning.text}  ${warning.rule}`);
-  });
+
+    console.log(result.source || filePath);
+    result.warnings.forEach((warning: stylelint.Warning) => {
+      // Filter out "Unknown rule" warnings (deprecated rules in Calibre's config)
+      if (warning.text.includes('Unknown rule')) {
+        return;
+      }
+      const severity = warning.severity === 'error' ? '✖' : '⚠';
+      console.log(`  ${warning.line}:${warning.column}  ${severity}  ${warning.text}  ${warning.rule}`);
+    });
+  }
 }
 
 program.parse();
