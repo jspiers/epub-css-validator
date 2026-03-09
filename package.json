@@ -5,7 +5,7 @@
   "type": "module",
   "main": "lib/core.ts",
   "bin": {
-    "epub-css-validator": "./bin/epub-css-validator.ts"
+    "epub-css-validator": "./dist/bin/epub-css-validator.js"
   },
   "scripts": {
     "test": "vitest --no-coverage",
@@ -13,7 +13,8 @@
     "test:coverage": "vitest run --coverage",
     "update-config": "tsx bin/epub-css-validator.ts --update-config",
     "build": "tsc",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "prepack": "npm run build"
   },
   "keywords": [
     "epub",
