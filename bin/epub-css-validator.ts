@@ -21,6 +21,8 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import path from 'path';
 import stylelint from 'stylelint';
+import fs from 'fs/promises';
+import { fileURLToPath } from 'url';
 import {
   validateCSS,
   validateEPUB,
@@ -30,12 +32,19 @@ import {
   type ValidationOptions
 } from '../lib/core.js';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Read version from package.json
+const packageJsonPath = path.join(__dirname, '..', '..', 'package.json');
+const packageJson = JSON.parse(await fs.readFile(packageJsonPath, 'utf-8'));
+
 const program = new Command();
 
 program
   .name('epub-css-validator')
   .description('Validate CSS in EPUB files using Calibre\'s stylelint rules')
-  .version('1.0.0');
+  .version(packageJson.version);
 
 program
   .argument('[files...]', 'CSS files, directories, or EPUB files to validate')

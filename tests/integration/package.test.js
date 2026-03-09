@@ -101,7 +101,7 @@ describe('Package Distribution', () => {
       cwd: tempDir,
       encoding: 'utf-8'
     });
-    expect(output).toContain('1.0.0');
+    expect(output).toContain('0.1.0');
   }, 30000); // 30 second timeout for npm install
 
   it('should validate CSS files correctly', async () => {
