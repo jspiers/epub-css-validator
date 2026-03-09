@@ -1,3 +1,16 @@
+/**
+ * EPUB CSS Validator - Unit Tests
+ *
+ * Copyright (C) 2026 Jeff Spiers
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * See LICENSE file for the full text of the GNU General Public License.
+ */
+
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { extractRules, getDefaultRules } from '../../lib/core.ts';
 

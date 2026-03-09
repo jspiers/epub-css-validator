@@ -10,9 +10,29 @@ EPUB CSS Validator is a Node.js command-line tool that validates CSS in EPUB fil
 
 ### License Compliance
 - **CRITICAL**: This project is licensed under **GPLv3** due to using Calibre's stylelint rules
-- Any modifications must preserve the GPLv3 license
-- Always include GPL license headers in new source files
-- Attribute Calibre (Kovid Goyal) as the source of the validation rules
+- **Copyright**: "Copyright (C) 2026 Jeff Spiers" - update to include contributors when they join
+- **Source files**: All .ts and .js files must include copyright header with GPL boilerplate
+- **Calibre attribution**: Must preserve "Calibre Copyright (C) 2023 Kovid Goyal <kovid at kovidgoyal.net>" in all files
+- **LICENSE file**: Contains full GPLv3 text plus project copyright notice
+- **New files**: Add this header to all new source files:
+  ```typescript
+  /**
+   * [Brief description]
+   *
+   * Copyright (C) 2026 Jeff Spiers
+   *
+   * This program is free software: you can redistribute it and/or modify
+   * it under the terms of the GNU General Public License as published by
+   * the Free Software Foundation, either version 3 of the License, or
+   * (at your option) any later version.
+   *
+   * This program uses CSS validation rules from Calibre (https://calibre-ebook.com/),
+   * which is licensed under the GNU General Public License v3.
+   * Calibre Copyright (C) 2023 Kovid Goyal <kovid at kovidgoyal.net>
+   *
+   * See LICENSE file for the full text of the GNU General Public License.
+   */
+  ```
 
 ### Architecture
 - **Entry Point**: `bin/epub-css-validator.ts` - CLI interface using Commander.js

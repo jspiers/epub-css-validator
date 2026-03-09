@@ -3,6 +3,8 @@
 /**
  * EPUB CSS Validator - CLI Entry Point
  *
+ * Copyright (C) 2026 Jeff Spiers
+ *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
@@ -10,7 +12,7 @@
  *
  * This program uses CSS validation rules from Calibre (https://calibre-ebook.com/),
  * which is licensed under the GNU General Public License v3.
- * Calibre Copyright (C) 2023 Kovid Goyal <kovid at kovidgoyal.net>
+ * Calibre Copyright (C) 2023 Kovid Goyal <kovidgoyal.net>
  *
  * See LICENSE file for the full text of the GNU General Public License.
  */
