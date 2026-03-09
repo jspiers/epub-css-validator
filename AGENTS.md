@@ -16,12 +16,13 @@ EPUB CSS Validator is a Node.js command-line tool that validates CSS in EPUB fil
 
 ### Architecture
 - **Entry Point**: `bin/epub-css-validator.js` - CLI interface using Commander.js
-- **Core Logic**: `lib/validator.js` - Validation, config fetching, and rule extraction
-- **Dependencies**: stylelint 15.x, axios, jszip, chalk 4.x, commander 11.x
+- **Core Logic**: `lib/core.js` - Pure validation logic (library-ready, no console output)
+- **Dependencies**: stylelint 16.x, axios, jszip, chalk 5.x, commander 11.x
+- **Module System**: ESM (ECMAScript Modules) - `"type": "module"` in package.json
 
 ### Important Version Constraints
-- **chalk**: Must use version 4.x (not 5.x) - chalk 5.x is ESM-only and incompatible with CommonJS
-- **stylelint**: Must use version 15.x (not 16.x) - stylelint 16.x has CommonJS deprecation warnings
+- **chalk**: Must use version 5.x (ESM-only)
+- **stylelint**: Must use version 16.x (ESM-only)
 - **Node.js**: Requires 18.0.0 or higher
 
 ### Calibre Config Parsing
@@ -29,6 +30,12 @@ EPUB CSS Validator is a Node.js command-line tool that validates CSS in EPUB fil
 - The `extractRules()` function uses bracket-matching to extract the rules object
 - Config is cached locally in `.cache/calibre-stylelint.js`
 - Config metadata stored in `.cache/cache-info.json`
+
+### Testing
+- **Framework**: Vitest
+- **Coverage**: ~62% (22 tests passing)
+- **Test Files**: `tests/unit/validator.test.js`, `tests/integration/css-validation.test.js`, `tests/integration/epub-validation.test.js`
+- **Test Fixture**: Public domain EPUB from Project Gutenberg (Pride and Prejudice)
 
 ## Common Tasks
 
@@ -38,12 +45,15 @@ EPUB CSS Validator is a Node.js command-line tool that validates CSS in EPUB fil
 3. No manual rule updates needed - they come from Calibre
 
 ### Modifying Output Formats
-- Text format: Handled in `validateCSS()` function
+- Text format: Handled in `displayErrors()` function in CLI
 - JSON format: Uses stylelint's built-in JSON formatter
-- JUnit format: Handled by `formatJUnit()` function
+- JUnit format: Handled by `formatJUnit()` function in core.js
 
 ### Testing Changes
 ```bash
+# Run all tests
+npm test
+
 # Test with example file
 node bin/epub-css-validator.js examples/test.css
 
@@ -64,7 +74,7 @@ node bin/epub-css-validator.js --format junit examples/test.css
 - Exit with appropriate exit codes (0 for success, 1 for errors)
 
 ### File Operations
-- Use `fs.promises` for async file operations
+- Use `fs/promises` for async file operations
 - Clean up temporary files (use try-finally)
 - Handle file not found errors gracefully
 
@@ -73,24 +83,30 @@ node bin/epub-css-validator.js --format junit examples/test.css
 - Update cache info when fetching new config
 - Handle network errors when fetching from GitHub
 
+### Library-Friendly Design
+- Core functions in `lib/core.js` have no console output
+- CLI in `bin/epub-css-validator.js` handles all user-facing output
+- Functions return structured data for programmatic use
+- No "as" imports - use direct imports
+
 ## Common Pitfalls
 
-### Don't Use chalk 5.x
+### Don't Use CommonJS
 ```javascript
-// ❌ WRONG - chalk 5.x is ESM-only
+// ❌ WRONG - project is ESM
 const chalk = require('chalk');
 
-// ✅ CORRECT - chalk 4.x supports CommonJS
-// package.json: "chalk": "^4.1.2"
+// ✅ CORRECT - ESM imports
+import chalk from 'chalk';
 ```
 
-### Don't Use stylelint 16.x
+### Don't Use Deprecated stylelint Options
 ```javascript
-// ❌ WRONG - stylelint 16.x has CommonJS deprecation warnings
-// package.json: "stylelint": "^16.0.0"
+// ❌ WRONG - deprecated
+await stylelint.lint({ files: filePath, formatter: 'json' });
 
-// ✅ CORRECT - stylelint 15.x works with CommonJS
-// package.json: "stylelint": "^15.11.0"
+// ✅ CORRECT - use report option
+await stylelint.lint({ files: filePath, report: 'json' });
 ```
 
 ### Don't Break Calibre Config Parsing
@@ -99,6 +115,15 @@ The `extractRules()` function is fragile - it parses Calibre's IIFE-wrapped conf
 - Check that rules are extracted correctly
 - Verify the tool still validates CSS properly
 
+### Don't Access Deprecated Properties
+```javascript
+// ❌ WRONG - accessing deprecated 'output' property
+JSON.stringify(result, null, 2)
+
+// ✅ CORRECT - access 'results' directly
+JSON.stringify({ results: result.results }, null, 2)
+```
+
 ## Project Structure
 
 ```
@@ -106,17 +131,25 @@ epub-css-validator/
 ├── bin/
 │   └── epub-css-validator.js    # CLI entry point
 ├── lib/
-│   └── validator.js             # Core validation logic
+│   └── core.js                  # Core validation logic (library-ready)
 ├── config/
 │   └── stylelintrc.js           # Example custom config
 ├── examples/
 │   └── test.css                 # Test file with errors
+├── tests/
+│   ├── unit/
+│   │   └── validator.test.js    # Unit tests
+│   ├── integration/
+│   │   ├── css-validation.test.js    # CSS validation tests
+│   │   ├── epub-validation.test.js   # EPUB validation tests
+│   │   └── edge-cases.test.js        # Edge case tests
+│   └── fixtures/
+│       └── epub/
+│           └── pride-prejudice.epub  # Public domain test EPUB
 ├── .cache/                      # Cached Calibre config (auto-created)
 ├── package.json
 ├── LICENSE                      # GPLv3 license
 ├── README.md
-├── QUICKSTART.md
-├── CLAUDE.md                    # Reference to this file
 └── AGENTS.md                    # This file
 ```
 
@@ -142,6 +175,11 @@ cat .cache/calibre-stylelint.js
 node bin/epub-css-validator.js --update-config
 ```
 
+### Trace Deprecation Warnings
+```bash
+NODE_OPTIONS="--trace-deprecation" npm test
+```
+
 ## External Dependencies
 
 ### Calibre
@@ -152,7 +190,7 @@ node bin/epub-css-validator.js --update-config
 
 ### stylelint
 - Website: https://stylelint.io/
-- Version: 15.11.0
+- Version: 16.0.0
 - Documentation: https://stylelint.io/user-guide/rules/
 
 ## Contributing Guidelines
@@ -163,6 +201,7 @@ node bin/epub-css-validator.js --update-config
 4. **Follow existing patterns** - Match the code style and structure
 5. **Handle errors gracefully** - Provide helpful error messages
 6. **Maintain compatibility** - Don't break existing functionality
+7. **Keep core library-friendly** - No console output in lib/core.js
 
 ## Performance Considerations
 
@@ -177,13 +216,3 @@ node bin/epub-css-validator.js --update-config
 - Temporary files are created in `.cache` directory
 - No user input is executed as code (except trusted Calibre config)
 - File paths are validated before processing
-
-## Future Enhancement Ideas
-
-- Add support for custom rule sets
-- Implement auto-fix for common CSS errors
-- Add support for SCSS/SASS preprocessing
-- Create VS Code extension
-- Add web interface
-- Support for more output formats (HTML, Markdown)
-- Integration with popular EPUB editors
