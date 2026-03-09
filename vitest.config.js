@@ -4,6 +4,11 @@ export default defineConfig({
   test: {
     testTimeout: 10000,
     include: ['tests/**/*.test.js', 'tests/**/*.test.ts'],
+    deps: {
+      // Externalize everything inside node_modules to avoid source map warnings
+      external: [/\/node_modules\//],
+      interopDefault: true
+    },
     coverage: {
       provider: 'v8',
       reportsDirectory: './tests/coverage',
@@ -21,31 +26,7 @@ export default defineConfig({
   resolve: {
     extensions: ['.js', '.ts']
   },
-  ssr: {
-    noExternal: true,
-    external: ['cosmiconfig', 'table']
-  },
-  deps: {
-    interopDefault: true
-  },
   css: {
     include: [/\.css$/]
-  },
-  server: {
-    sourcemap: {
-      ignore: [/node_modules/]
-    }
-  },
-  optimizeDeps: {
-    include: []
-  },
-  build: {
-    sourcemap: false
-  },
-  esbuild: {
-    sourcemap: false
-  },
-  define: {
-    'process.env.NODE_ENV': '"test"'
   }
 });
