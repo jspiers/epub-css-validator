@@ -7,10 +7,16 @@
   "bin": {
     "epub-css-validator": "./dist/bin/epub-css-validator.js"
   },
+  "files": [
+    "dist/",
+    "LICENSE",
+    "README.md"
+  ],
   "scripts": {
     "test": "vitest --no-coverage",
     "test:run": "vitest run --no-coverage",
     "test:coverage": "vitest run --coverage",
+    "test:package": "vitest run tests/integration/package.test.js",
     "update-config": "tsx bin/epub-css-validator.ts --update-config",
     "build": "tsc",
     "type-check": "tsc --noEmit",

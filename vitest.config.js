@@ -16,6 +16,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     testTimeout: 10000,
+    hookTimeout: 60000,
     include: ['tests/**/*.test.js', 'tests/**/*.test.ts'],
     deps: {
       // Externalize everything inside node_modules to avoid source map warnings

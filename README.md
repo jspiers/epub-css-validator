@@ -11,6 +11,23 @@ A command-line tool to validate CSS in EPUB files using the same [stylelint](htt
 - ✅ Easy CI/CD integration
 - ✅ TypeScript with full type definitions for library use
 
+## Installation
+
+### Via npm (Recommended)
+
+```bash
+# Install globally
+npm install -g epub-css-validator
+
+# Or use npx without installation
+npx epub-css-validator book.epub
+```
+
+### Requirements
+
+- Node.js 18.0.0 or higher
+- npm (comes with Node.js)
+
 ## Quick Start
 
 ```bash
@@ -29,10 +46,13 @@ npx tsx bin/epub-css-validator.ts book.epub
 ## Usage
 
 ```bash
-# Basic validation
-npx tsx bin/epub-css-validator.ts stylesheet.css
-npx tsx bin/epub-css-validator.ts ./styles/
-npx tsx bin/epub-css-validator.ts book.epub
+# Basic validation (after npm install -g)
+epub-css-validator stylesheet.css
+epub-css-validator ./styles/
+epub-css-validator book.epub
+
+# Or use npx without installation
+npx epub-css-validator stylesheet.css
 
 # Options
 -f, --format <format>    Output: text, json, junit (default: text)
@@ -46,16 +66,16 @@ npx tsx bin/epub-css-validator.ts book.epub
 
 ```bash
 # Check cached config
-npx tsx bin/epub-css-validator.ts --cache-info
+epub-css-validator --cache-info
 
 # JSON output
-npx tsx bin/epub-css-validator.ts --format json book.epub
+epub-css-validator --format json book.epub
 
 # JUnit output
-npx tsx bin/epub-css-validator.ts --format junit book.epub
+epub-css-validator --format junit book.epub
 
 # Custom config
-npx tsx bin/epub-css-validator.ts --config ./my-stylelint.js stylesheet.css
+epub-css-validator --config ./my-stylelint.js stylesheet.css
 ```
 
 ## Output
