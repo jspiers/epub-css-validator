@@ -1,14 +1,14 @@
-# Testing Setup Complete
+# Testing
 
 ## Summary
 
-Successfully set up Vitest with comprehensive test suite for the EPUB CSS Validator.
+Comprehensive test suite for the EPUB CSS Validator using Vitest.
 
 ## Test Results
 
-- ✅ **21 tests passing**
-- ✅ **70.94% code coverage**
-- ✅ **3 test files** (unit + integration)
+- ✅ **32 tests passing**
+- ✅ **~62% code coverage**
+- ✅ **4 test files** (unit + integration + edge cases)
 
 ## Test Structure
 
@@ -18,8 +18,11 @@ tests/
 │   └── validator.test.js          # 7 tests for core functions
 ├── integration/
 │   ├── css-validation.test.js     # 9 tests for CSS validation
-│   └── epub-validation.test.js    # 5 tests for EPUB validation
-└── fixtures/                      # Test fixtures (auto-created)
+│   ├── epub-validation.test.js    # 6 tests for EPUB validation
+│   └── edge-cases.test.js         # 10 tests for edge cases
+└── fixtures/
+    └── epub/
+        └── pride-prejudice.epub  # Public domain test EPUB
 ```
 
 ## Test Coverage
@@ -32,7 +35,7 @@ tests/
 - ✅ Return default stylelint rules
 - ✅ Have correct rule values
 
-### Integration Tests (14 tests)
+### Integration Tests (25 tests)
 
 #### CSS Validation (9 tests)
 - ✅ Detect errors in test.css
@@ -45,12 +48,25 @@ tests/
 - ✅ Validate valid CSS without errors
 - ✅ Handle non-existent file gracefully
 
-#### EPUB Validation (5 tests)
-- ✅ Validate EPUB file
+#### EPUB Validation (6 tests)
+- ✅ Validate public domain EPUB file
+- ✅ Detect CSS errors in public domain EPUB
 - ✅ Handle EPUB with no CSS files
 - ✅ Handle non-existent EPUB file
 - ✅ Handle JSON output format for EPUB
 - ✅ Handle JUnit output format for EPUB
+
+#### Edge Cases (10 tests)
+- ✅ Handle EPUB with missing required files
+- ✅ Handle EPUB with invalid XML structure
+- ✅ Handle corrupted ZIP archive
+- ✅ Handle EPUB with no CSS files
+- ✅ Handle EPUB with only metadata files
+- ✅ Handle CSS with syntax errors
+- ✅ Handle CSS with encoding issues
+- ✅ Handle CSS with circular dependencies
+- ✅ Handle EPUB with very large CSS files
+- ✅ Handle concurrent validation efficiently
 
 ## Running Tests
 
@@ -67,42 +83,24 @@ npm run test:coverage
 
 ## Coverage Report
 
-Current coverage: **70.94%**
+Current coverage: **~62%**
 
 Uncovered areas:
 - `validateDirectory` function (not currently used)
 - Some edge cases in error handling
 - JUnit formatting edge cases
 
-## Next Steps
+## Test Fixture
 
-To improve coverage, consider adding tests for:
-
-1. **Config Fetching**
-   - `fetchCalibreConfig()` function
-   - `getCachedConfig()` function
-   - `getCachedConfigInfo()` function
-   - `updateConfig()` function
-   - `getLatestCalibreVersion()` function
-
-2. **Directory Validation**
-   - `validateDirectory()` function
-
-3. **CLI Testing**
-   - Test the CLI entry point
-   - Test command-line argument parsing
-   - Test exit codes
-
-4. **Edge Cases**
-   - Network errors during config fetching
-   - Invalid EPUB files
-   - Corrupted CSS files
-   - Custom configuration loading
+The EPUB test fixture is **Pride and Prejudice** from Project Gutenberg (public domain):
+- Source: https://www.gutenberg.org/ebooks/1342.epub.noimages
+- License: Public domain
+- Attribution: Jane Austen
 
 ## Notes
 
-- Tests use JSON output format for easier assertions (as requested)
+- Tests use JSON output format for easier assertions
 - Console output is mocked during tests
 - Temporary files are cleaned up after tests
-- Tests are fast (~4 seconds for full suite)
-- Pride and Prejudice EPUB test fixture sourced from Project Gutenberg (public domain)
+- Tests are fast (~6 seconds for full suite)
+- TypeScript source files are imported directly (`.ts` extension)

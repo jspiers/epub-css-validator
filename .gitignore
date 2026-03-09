@@ -20,3 +20,16 @@ Thumbs.db
 
 # Temporary files
 temp-*.css
+
+# Test coverage
+tests/coverage/
+coverage/
+
+# TypeScript compiled output
+dist/
+*.js.map
+*.d.ts.map
+
+# Keep TypeScript source files, ignore compiled JS
+lib/*.js
+bin/*.js

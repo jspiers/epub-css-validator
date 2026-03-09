@@ -18,12 +18,14 @@
 import { Command } from 'commander';
 import chalk from 'chalk';
 import path from 'path';
+import stylelint from 'stylelint';
 import {
   validateCSS,
   validateEPUB,
   updateConfig,
   getCachedConfigInfo,
-  formatJUnit
+  formatJUnit,
+  type ValidationOptions
 } from '../lib/core.js';
 
 const program = new Command();
@@ -40,19 +42,19 @@ program
   .option('-c, --config <path>', 'Use custom stylelint config file')
   .option('-v, --verbose', 'Verbose output')
   .option('--cache-info', 'Show cached Calibre config information')
-  .action(async (files, options) => {
+  .action(async (files: string[], options: ValidationOptions & { updateConfig?: boolean; cacheInfo?: boolean }) => {
     try {
       // Handle --update-config flag
       if (options.updateConfig) {
         console.log(chalk.blue('Updating Calibre stylelint config...'));
-        await coreUpdateConfig();
+        await updateConfig();
         console.log(chalk.green('✓ Config updated successfully'));
         return;
       }
 
       // Handle --cache-info flag
       if (options.cacheInfo) {
-        const info = await coreGetCachedConfigInfo();
+        const info = await getCachedConfigInfo();
         if (info) {
           console.log(chalk.blue('Cached Calibre Config:'));
           console.log(`  Version: ${chalk.yellow(info.version)}`);
@@ -85,7 +87,7 @@ program
           totalWarnings += result.totalWarnings;
           // Display EPUB errors if any
           if (result.totalErrors > 0 || result.totalWarnings > 0) {
-            displayErrors(result.results[0], filePath);
+            displayErrors(result.results?.[0], filePath);
           }
         } else if (ext === '.css') {
           console.log(chalk.blue(`Validating CSS: ${file}`));
@@ -94,7 +96,7 @@ program
           totalWarnings += result.totalWarnings;
           // Display CSS errors if any
           if (result.totalErrors > 0 || result.totalWarnings > 0) {
-            displayErrors(result.results[0], filePath);
+            displayErrors(result.results?.[0], filePath);
           }
         } else {
           console.log(chalk.yellow(`Skipping ${file} (not a CSS or EPUB file)`));
@@ -118,9 +120,9 @@ program
       process.exit(totalErrors > 0 ? 1 : 0);
 
     } catch (error) {
-      console.error(chalk.red(`Error: ${error.message}`));
+      console.error(chalk.red(`Error: ${(error as Error).message}`));
       if (options.verbose) {
-        console.error(error.stack);
+        console.error((error as Error).stack);
       }
       process.exit(1);
     }
@@ -129,13 +131,13 @@ program
 /**
  * Display validation errors to console
  */
-function displayErrors(result, filePath) {
+function displayErrors(result: stylelint.LintResult | undefined, filePath: string): void {
   if (!result || !result.warnings || result.warnings.length === 0) {
     return;
   }
 
   console.log(result.source || filePath);
-  result.warnings.forEach(warning => {
+  result.warnings.forEach((warning: stylelint.Warning) => {
     // Filter out "Unknown rule" warnings (deprecated rules in Calibre's config)
     if (warning.text.includes('Unknown rule')) {
       return;

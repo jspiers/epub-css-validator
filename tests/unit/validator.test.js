@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { extractRules, getDefaultRules } from '../../lib/core.js';
+import { extractRules, getDefaultRules } from '../../lib/core.ts';
 
 describe('extractRules', () => {
   it('should extract rules from Calibre config format', () => {

@@ -1,16 +1,15 @@
 # EPUB CSS Validator
 
-A command-line tool to validate CSS in EPUB files using the samei
-[stylelint](https://stylelint.io/) rules also
-[Calibre](https://calibre-ebook.com/)'s Edit Book tool.
+A command-line tool to validate CSS in EPUB files using the same [stylelint](https://stylelint.io/) rules as [Calibre](https://calibre-ebook.com/)'s Edit Book tool.
 
 ## Features
 
-- ✅ Automatically fetches and updates Calibre sylelint rules from GitHub
+- ✅ Automatically fetches and updates Calibre stylelint rules from GitHub
 - ✅ Validates CSS files, directories, or EPUB files
 - ✅ Multiple output formats (text, JSON, JUnit XML)
 - ✅ Custom configuration support
 - ✅ Easy CI/CD integration
+- ✅ TypeScript with full type definitions for library use
 
 ## Quick Start
 
@@ -20,20 +19,20 @@ cd epub-css-validator
 npm install
 
 # Update Calibre's rules
-node bin/epub-css-validator.js --update-config
+npm run update-config
 
 # Validate files
-node bin/epub-css-validator.js examples/test.css
-node bin/epub-css-validator.js book.epub
+npx tsx bin/epub-css-validator.ts examples/test.css
+npx tsx bin/epub-css-validator.ts book.epub
 ```
 
 ## Usage
 
 ```bash
 # Basic validation
-node bin/epub-css-validator.js stylesheet.css
-node bin/epub-css-validator.js ./styles/
-node bin/epub-css-validator.js book.epub
+npx tsx bin/epub-css-validator.ts stylesheet.css
+npx tsx bin/epub-css-validator.ts ./styles/
+npx tsx bin/epub-css-validator.ts book.epub
 
 # Options
 -f, --format <format>    Output: text, json, junit (default: text)
@@ -47,16 +46,16 @@ node bin/epub-css-validator.js book.epub
 
 ```bash
 # Check cached config
-node bin/epub-css-validator.js --cache-info
+npx tsx bin/epub-css-validator.ts --cache-info
 
 # JSON output
-node bin/epub-css-validator.js --format json book.epub
+npx tsx bin/epub-css-validator.ts --format json book.epub
 
 # JUnit output
-node bin/epub-css-validator.js --format junit book.epub
+npx tsx bin/epub-css-validator.ts --format junit book.epub
 
 # Custom config
-node bin/epub-css-validator.js --config ./my-stylelint.js stylesheet.css
+npx tsx bin/epub-css-validator.ts --config ./my-stylelint.js stylesheet.css
 ```
 
 ## Output
@@ -135,8 +134,8 @@ jobs:
       - run: |
           cd epub-css-validator
           npm install
-          node bin/epub-css-validator.js --update-config
-          node bin/epub-css-validator.js --format json book.epub
+          npm run update-config
+          npx tsx bin/epub-css-validator.ts --format json book.epub
 ```
 
 ### GitLab CI
@@ -147,8 +146,8 @@ validate-css:
   script:
     - cd epub-css-validator
     - npm install
-    - node bin/epub-css-validator.js --update-config
-    - node bin/epub-css-validator.js --format junit book.epub > report.xml
+    - npm run update-config
+    - npx tsx bin/epub-css-validator.ts --format junit book.epub > report.xml
   artifacts:
     reports:
       junit: report.xml
@@ -167,7 +166,7 @@ Run `npm install` in the epub-css-validator directory.
 ### "No cached config found"
 
 ```bash
-node bin/epub-css-validator.js --update-config
+npm run update-config
 ```
 
 ### "Could not parse Calibre config"
@@ -175,7 +174,7 @@ node bin/epub-css-validator.js --update-config
 Update the config again. If it persists, use a custom config:
 
 ```bash
-node bin/epub-css-validator.js --config ./my-stylelint.js stylesheet.css
+npx tsx bin/epub-css-validator.ts --config ./my-stylelint.js stylesheet.css
 ```
 
 ### Network Issues
@@ -190,12 +189,24 @@ Manually download Calibre's config:
 
 ```
 epub-css-validator/
-├── bin/epub-css-validator.js    # CLI entry point
-├── lib/validator.js             # Main validation logic
+├── bin/epub-css-validator.ts    # CLI entry point
+├── lib/core.ts                  # Core validation logic (library-ready)
 ├── config/stylelintrc.js        # Example custom config
 ├── examples/test.css            # Test file
 ├── .cache/                      # Cached Calibre config
+├── tsconfig.json                # TypeScript configuration
 └── package.json
+```
+
+## Library Usage
+
+The core validation functions are exported from `lib/core.ts` with full TypeScript type definitions:
+
+```typescript
+import { validateCSS, validateEPUB, type ValidationResult } from './lib/core.ts';
+
+const result: ValidationResult = await validateCSS('stylesheet.css', {});
+console.log(`Errors: ${result.totalErrors}, Warnings: ${result.totalWarnings}`);
 ```
 
 ## Contributing

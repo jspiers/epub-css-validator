@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "description": "Command-line tool to validate CSS in EPUB files using Calibre's stylelint rules",
   "type": "module",
-  "main": "lib/validator.js",
+  "main": "lib/core.ts",
   "bin": {
-    "epub-css-validator": "./bin/epub-css-validator.js"
+    "epub-css-validator": "./bin/epub-css-validator.ts"
   },
   "scripts": {
     "test": "vitest --no-coverage",
     "test:run": "vitest run --no-coverage",
     "test:coverage": "vitest run --coverage",
-    "update-config": "node bin/epub-css-validator.js --update-config"
+    "update-config": "tsx bin/epub-css-validator.ts --update-config",
+    "build": "tsc",
+    "type-check": "tsc --noEmit"
   },
   "keywords": [
     "epub",
@@ -38,7 +40,12 @@
     "testTimeout": 10000,
     "coverage": {
       "provider": "v8",
-      "reporter": ["text", "json", "html"],
+      "reportsDirectory": "tests/coverage",
+      "reporter": [
+        "text",
+        "json",
+        "html"
+      ],
       "exclude": [
         "node_modules/",
         "tests/",
@@ -48,7 +55,10 @@
     }
   },
   "devDependencies": {
+    "@types/node": "^25.3.5",
     "@vitest/coverage-v8": "^4.0.18",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
     "vitest": "^4.0.18"
   }
 }

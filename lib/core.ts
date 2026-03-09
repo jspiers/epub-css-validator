@@ -32,9 +32,34 @@ const CACHE_FILE = path.join(CACHE_DIR, 'calibre-stylelint.js');
 const CACHE_INFO_FILE = path.join(CACHE_DIR, 'cache-info.json');
 
 /**
+ * Type definitions for the validation results
+ */
+export interface ValidationResult {
+  totalErrors: number;
+  totalWarnings: number;
+  results?: stylelint.LintResult[];
+}
+
+export interface ValidationOptions {
+  format?: 'text' | 'json' | 'junit';
+  config?: string;
+  verbose?: boolean;
+}
+
+export interface CacheInfo {
+  version: string;
+  cachedAt: string;
+  path: string;
+}
+
+export interface StylelintRules {
+  [ruleName: string]: any;
+}
+
+/**
  * Fetch Calibre's stylelint config from GitHub
  */
-export async function fetchCalibreConfig() {
+export async function fetchCalibreConfig(): Promise<string> {
   const url = `https://raw.githubusercontent.com/${CALIBRE_REPO}/master/${CONFIG_PATH}`;
   const response = await axios.get(url);
   return response.data;
@@ -43,7 +68,7 @@ export async function fetchCalibreConfig() {
 /**
  * Get cached Calibre config
  */
-export async function getCachedConfig() {
+export async function getCachedConfig(): Promise<string | null> {
   try {
     return await fs.readFile(CACHE_FILE, 'utf-8');
   } catch (error) {
@@ -54,10 +79,10 @@ export async function getCachedConfig() {
 /**
  * Get cached config information
  */
-export async function getCachedConfigInfo() {
+export async function getCachedConfigInfo(): Promise<CacheInfo | null> {
   try {
     const info = await fs.readFile(CACHE_INFO_FILE, 'utf-8');
-    return JSON.parse(info);
+    return JSON.parse(info) as CacheInfo;
   } catch (error) {
     return null;
   }
@@ -66,7 +91,7 @@ export async function getCachedConfigInfo() {
 /**
  * Update cached Calibre config
  */
-export async function updateConfig() {
+export async function updateConfig(): Promise<string> {
   const config = await fetchCalibreConfig();
 
   // Create cache directory if it doesn't exist
@@ -76,7 +101,7 @@ export async function updateConfig() {
   await fs.writeFile(CACHE_FILE, config);
 
   // Save cache info with version
-  const info = {
+  const info: CacheInfo = {
     version: await getLatestCalibreVersion(),
     cachedAt: new Date().toISOString(),
     path: CACHE_FILE
@@ -89,7 +114,7 @@ export async function updateConfig() {
 /**
  * Get latest Calibre version from GitHub API
  */
-export async function getLatestCalibreVersion() {
+export async function getLatestCalibreVersion(): Promise<string> {
   try {
     const response = await axios.get(`https://api.github.com/repos/${CALIBRE_REPO}/commits/master`);
     return response.data.sha.substring(0, 7);
@@ -101,7 +126,7 @@ export async function getLatestCalibreVersion() {
 /**
  * Extract rules from Calibre's config content
  */
-export function extractRules(configContent) {
+export function extractRules(configContent: string): StylelintRules {
   try {
     // Calibre's config is wrapped in a browser-style IIFE
     // We need to extract the rules object from it
@@ -144,12 +169,12 @@ export function extractRules(configContent) {
 
     // Parse the rules object safely
     const rulesStr = `{${rulesContent}}`;
-    const rules = new Function(`return ${rulesStr}`)();
+    const rules = new Function(`return ${rulesStr}`)() as StylelintRules;
     return rules;
   } catch (error) {
     console.warn('Warning: Could not parse Calibre config, using default rules');
     if (process.env.DEBUG) {
-      console.warn('Error details:', error.message);
+      console.warn('Error details:', (error as Error).message);
     }
     return getDefaultRules();
   }
@@ -158,7 +183,7 @@ export function extractRules(configContent) {
 /**
  * Get default stylelint rules (fallback)
  */
-export function getDefaultRules() {
+export function getDefaultRules(): StylelintRules {
   return {
     'property-no-unknown': true,
     'block-no-empty': true,
@@ -173,8 +198,8 @@ export function getDefaultRules() {
 /**
  * Validate a CSS file (core function - no console output)
  */
-export async function validateCSS(filePath, options = {}) {
-  let config;
+export async function validateCSS(filePath: string, options: ValidationOptions = {}): Promise<ValidationResult> {
+  let config: stylelint.Config;
 
   if (options.config) {
     // Use custom config
@@ -188,9 +213,8 @@ export async function validateCSS(filePath, options = {}) {
 
   const result = await stylelint.lint({
     files: filePath,
-    config: config,
-    report: options.format === 'json' ? 'json' : 'text'
-  });
+    config: config
+  } as stylelint.LinterOptions);
 
   const output = result.results[0];
 
@@ -212,7 +236,7 @@ export async function validateCSS(filePath, options = {}) {
 /**
  * Validate all CSS files in a directory
  */
-export async function validateDirectory(dirPath, options = {}) {
+export async function validateDirectory(dirPath: string, options: ValidationOptions = {}): Promise<ValidationResult> {
   const cssFiles = glob.sync('**/*.css', {
     cwd: dirPath,
     absolute: true
@@ -233,11 +257,11 @@ export async function validateDirectory(dirPath, options = {}) {
 /**
  * Validate CSS in an EPUB file (core function - no console output)
  */
-export async function validateEPUB(epubPath, options = {}) {
+export async function validateEPUB(epubPath: string, options: ValidationOptions = {}): Promise<ValidationResult> {
   const data = await fs.readFile(epubPath);
   const zip = await JSZip.loadAsync(data);
 
-  const cssFiles = [];
+  const cssFiles: JSZip.JSZipObject[] = [];
   zip.forEach((relativePath, file) => {
     if (relativePath.endsWith('.css') && !file.dir) {
       cssFiles.push(file);
@@ -274,18 +298,20 @@ export async function validateEPUB(epubPath, options = {}) {
 /**
  * Format results as JUnit XML
  */
-export function formatJUnit(result, filePath) {
-  const testCases = [];
+export function formatJUnit(result: ValidationResult, filePath: string): string {
+  const testCases: Array<{ name: string; failure: { message: string; type: string } }> = [];
 
-  for (const fileResult of result.results) {
-    for (const warning of fileResult.warnings) {
-      testCases.push({
-        name: `${warning.rule} - line ${warning.line}`,
-        failure: {
-          message: warning.text,
-          type: warning.severity
-        }
-      });
+  if (result.results) {
+    for (const fileResult of result.results) {
+      for (const warning of fileResult.warnings) {
+        testCases.push({
+          name: `${warning.rule} - line ${warning.line}`,
+          failure: {
+            message: warning.text,
+            type: warning.severity
+          }
+        });
+      }
     }
   }
 
