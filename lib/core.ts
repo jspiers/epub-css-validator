@@ -22,6 +22,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import JSZip from 'jszip';
 import { glob } from 'glob';
+import os from 'os';
 
 // ESM polyfills for __dirname and __filename
 const __filename = fileURLToPath(import.meta.url);
@@ -282,8 +283,8 @@ export async function validateEPUB(epubPath: string, options: ValidationOptions 
     const content = await file.async('string');
     const cssPath = file.name; // Original CSS path in EPUB
 
-    // Write to temp file for stylelint
-    const tempFile = path.join(CACHE_DIR, `temp-${Date.now()}.css`);
+    // Write to temp file for stylelint (use system temp directory)
+    const tempFile = path.join(os.tmpdir(), `epub-css-validator-${Date.now()}.css`);
     await fs.writeFile(tempFile, content);
 
     try {
