@@ -1,5 +1,7 @@
 # EPUB CSS Validator
 
+[![npm version](https://badge.fury.io/js/epub-css-validator.svg)](https://www.npmjs.com/package/epub-css-validator)
+
 A command-line tool to validate CSS in EPUB files using the same [stylelint](https://stylelint.io/) rules as [Calibre](https://calibre-ebook.com/)'s Edit Book tool.
 
 ## Features
